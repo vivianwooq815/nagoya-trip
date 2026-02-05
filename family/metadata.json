@@ -1,0 +1,7 @@
+{
+  "name": "Komorebi Travel Planner",
+  "description": "A warm, Japanese stationary-inspired group travel planning app with real-time sync, expense tracking, and a shared travel journal.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

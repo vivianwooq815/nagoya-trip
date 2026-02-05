@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Komorebi Travel</title>
+    
+    <!-- PWA 相關標籤 -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#8FA998">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="名古屋Travel">
+    <link rel="apple-touch-icon" href="https://api.dicebear.com/7.x/icons/svg?seed=map&fill=8FA998">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'k-beige': '#F7F4EB',
+                        'k-green-light': '#E0E5D5',
+                        'k-green': '#8FA998',
+                        'k-green-dark': '#5E7064',
+                        'k-brown': '#A68A64',
+                        'k-accent': '#D98E73',
+                        'k-stay': '#B2C9AB',
+                        'k-food': '#F4D35E',
+                        'k-spot': '#92DCE5',
+                        'k-trans': '#D8B4A0'
+                    },
+                    boxShadow: {
+                        'soft': '4px 4px 0px #E0E5D5',
+                        'soft-lg': '6px 6px 0px #E0E5D5',
+                    },
+                    borderRadius: {
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Quicksand', 'Noto+Sans+TC', sans-serif;
+            background-color: #F7F4EB;
+            background-image: radial-gradient(#E0E5D5 0.5px, transparent 0.5px);
+            background-size: 20px 20px;
+            -webkit-tap-highlight-color: transparent;
+            /* 防止 iOS 橡皮筋效果影響體驗 */
+            overscroll-behavior-y: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .paper-texture {
+            background-image: url('https://www.transparenttextures.com/patterns/natural-paper.png');
+        }
+        /* 針對 iPhone X 以上的瀏海屏優化 */
+        header {
+            padding-top: calc(2rem + env(safe-area-inset-top));
+        }
+        nav {
+            bottom: calc(1.5rem + env(safe-area-inset-bottom));
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="overflow-x-hidden text-[#4A4A4A]">
+    <div id="root"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+
+{
+  "short_name": "名古屋Travel",
+  "name": "Komorebi 名古屋旅遊筆記",
+  "icons": [
+    {
+      "src": "https://api.dicebear.com/7.x/icons/svg?seed=map&fill=8FA998",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "https://api.dicebear.com/7.x/icons/svg?seed=map&fill=8FA998",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#8FA998",
+  "background_color": "#F7F4EB"
+}
