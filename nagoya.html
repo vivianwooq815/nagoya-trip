@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>名古屋玩透透 | Nagoya Trip</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        [v-cloak] { display: none; }
+        body { background-color: #f8f9fa; -webkit-tap-highlight-color: transparent; }
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+        .active-tab { color: #d63384; font-weight: 800; }
+        .app-shadow { box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body class="font-sans text-slate-800">
+
+<div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-gray-50 flex flex-col">
+
+    <header class="bg-white px-6 py-4 sticky top-0 z-10 border-b border-gray-100 flex justify-between items-center">
+        <div>
+            <h1 class="text-xl font-bold text-slate-900 tracking-tight">Nagoya Trip 2026</h1>
+            <p class="text-xs text-slate-400">名古屋・中部國際空港</p>
+        </div>
+        <div class="bg-pink-50 text-pink-600 px-3 py-1 rounded-full text-xs font-bold">
+            Day {{ currentDayIndex + 1 }}
+        </div>
+    </header>
+
+    <main class="flex-grow p-4 pb-24 overflow-y-auto">
+        
+        <div v-if="activeTab === 'plan'" class="space-y-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-bold">每日行程表</h2>
+                <button @click="addPlan" class="text-pink-600 text-sm font-bold">+ 新增地點</button>
+            </div>
+
+            <div v-for="(item, index) in itinerary" :key="index" class="bg-white rounded-2xl p-4 shadow-sm border border-gray-50 relative group">
+                <div class="flex gap-4">
+                    <div class="w-16 flex-shrink-0">
+                        <input type="time" v-model="item.time" class="text-sm font-bold text-slate-600 w-full bg-transparent focus:outline-none">
+                    </div>
+                    <div class="flex-grow">
+                        <input type="text" v-model="item.location" class="font-bold block w-full focus:outline-none focus:border-b focus:border-pink-200" placeholder="景點名稱">
+                        <div class="flex mt-2 gap-2">
+                            <button @click="openMaps(item.location)" class="text-xs bg-slate-100 px-2 py-1 rounded text-slate-500 hover:bg-pink-50 hover:text-pink-600">
+                                <i class="fa-solid fa-location-dot mr-1"></i>導航
+                            </button>
+                            <button @click="removePlan(index)" class="text-xs text-red-300 hover:text-red-500">刪除</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="activeTab === 'split'" class="space-y-4">
+            <h2 class="text-lg font-bold">旅遊記帳分帳</h2>
+            
+            <div class="bg-white rounded-2xl p-5 shadow-sm space-y-3">
+                <div class="flex gap-2">
+                    <input v-model="newExpense.payer" placeholder="付款人" class="w-1/3 bg-gray-50 p-2 rounded-lg text-sm">
+                    <input v-model.number="newExpense.amount" type="number" placeholder="金額 (日幣)" class="w-1/3 bg-gray-50 p-2 rounded-lg text-sm">
+                    <button @click="addExpense" class="flex-grow bg-slate-800 text-white rounded-lg text-sm font-bold">新增</button>
+                </div>
+                <p class="text-[10px] text-gray-400">* 會自動計算所有人平均分攤的結果</p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-4 shadow-sm">
+                <h3 class="text-sm font-bold mb-3 border-b pb-2">分帳結果</h3>
+                <div v-if="settlements.length === 0" class="text-sm text-gray-400 text-center py-4 italic">目前暫無記帳資料</div>
+                <div v-for="s in settlements" class="flex items-center justify-between py-2 text-sm">
+                    <span><b class="text-pink-600">{{ s.from }}</b> 給 <b class="text-slate-700">{{ s.to }}</b></span>
+                    <span class="font-mono font-bold text-slate-900">¥ {{ s.amount.toFixed(0) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="activeTab === 'map'" class="space-y-4 h-full">
+            <h2 class="text-lg font-bold">名古屋熱門地點</h2>
+            <div class="rounded-2xl overflow-hidden shadow-sm h-64 bg-gray-200">
+                <iframe 
+                    width="100%" 
+                    height="100%" 
+                    frameborder="0" 
+                    style="border:0" 
+                    src="https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY_HERE&q=Nagoya+Station" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div v-for="spot in spots" @click="openMaps(spot.name)" class="bg-white p-3 rounded-xl border border-gray-100 flex flex-col items-center justify-center text-center cursor-pointer active:scale-95 transition">
+                    <i :class="spot.icon" class="text-pink-400 text-xl mb-2"></i>
+                    <span class="text-xs font-bold">{{ spot.name }}</span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-gray-100 px-6 py-3 flex justify-between items-center app-shadow safe-bottom">
+        <button @click="activeTab = 'plan'" :class="{'active-tab': activeTab === 'plan'}" class="flex flex-col items-center gap-1 transition-all">
+            <i class="fa-solid fa-calendar-day"></i>
+            <span class="text-[10px]">行程表</span>
+        </button>
+        <button @click="activeTab = 'split'" :class="{'active-tab': activeTab === 'split'}" class="flex flex-col items-center gap-1 transition-all text-slate-400">
+            <i class="fa-solid fa-calculator"></i>
+            <span class="text-[10px]">分帳</span>
+        </button>
+        <button @click="activeTab = 'map'" :class="{'active-tab': activeTab === 'map'}" class="flex flex-col items-center gap-1 transition-all text-slate-400">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <span class="text-[10px]">地圖</span>
+        </button>
+    </nav>
+</div>
+
+<script>
+    const { createApp, ref, computed, watch } = Vue;
+
+    createApp({
+        setup() {
+            const activeTab = ref('plan');
+            const currentDayIndex = ref(0);
+
+            // 行程資料 (LocalStorage 持久化)
+            const itinerary = ref(JSON.parse(localStorage.getItem('nagoya_itinerary')) || [
+                { time: '10:00', location: '名古屋城' },
+                { time: '13:00', location: '熱田神宮' },
+                { time: '18:00', location: '榮町 (Sakae) 逛街' }
+            ]);
+
+            // 記帳資料
+            const expenses = ref(JSON.parse(localStorage.getItem('nagoya_expenses')) || []);
+            const newExpense = ref({ payer: '', amount: null });
+
+            const spots = [
+                { name: '名古屋城', icon: 'fa-solid fa-chess-rook' },
+                { name: '大須商店街', icon: 'fa-solid fa-shop' },
+                { name: '熱田神宮', icon: 'fa-solid fa-torii-gate' },
+                { name: '中部國際機場', icon: 'fa-solid fa-plane' },
+                { name: '樂高樂園', icon: 'fa-solid fa-cubes' },
+                { name: '吉卜力公園', icon: 'fa-solid fa-cat' }
+            ];
+
+            // 監聽並儲存資料
+            watch(itinerary, (val) => localStorage.setItem('nagoya_itinerary', JSON.stringify(val)), { deep: true });
+            watch(expenses, (val) => localStorage.setItem('nagoya_expenses', JSON.stringify(val)), { deep: true });
+
+            const addPlan = () => {
+                itinerary.value.push({ time: '12:00', location: '' });
+            };
+
+            const removePlan = (index) => {
+                itinerary.value.splice(index, 1);
+            };
+
+            const openMaps = (loc) => {
+                if(!loc) return;
+                window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}`, '_blank');
+            };
+
+            const addExpense = () => {
+                if(!newExpense.value.payer || !newExpense.value.amount) return;
+                expenses.value.push({ ...newExpense.value });
+                newExpense.value = { payer: '', amount: null };
+            };
+
+            // 分帳核心邏輯 (簡化版：平均分攤)
+            const settlements = computed(() => {
+                if (expenses.value.length === 0) return [];
+                
+                const totals = {};
+                let allPayer = new Set();
+                let sum = 0;
+
+                expenses.value.forEach(ex => {
+                    totals[ex.payer] = (totals[ex.payer] || 0) + ex.amount;
+                    allPayer.add(ex.payer);
+                    sum += ex.amount;
+                });
+
+                const average = sum / allPayer.size;
+                const balances = Array.from(allPayer).map(name => ({
+                    name,
+                    balance: (totals[name] || 0) - average
+                }));
+
+                // 債務計算邏輯
+                const debtors = balances.filter(b => b.balance < 0).sort((a, b) => a.balance - b.balance);
+                const creditors = balances.filter(b => b.balance > 0).sort((a, b) => b.balance - a.balance);
+                
+                const res = [];
+                let dIdx = 0, cIdx = 0;
+
+                while (dIdx < debtors.length && cIdx < creditors.length) {
+                    const amount = Math.min(-debtors[dIdx].balance, creditors[cIdx].balance);
+                    res.push({ from: debtors[dIdx].name, to: creditors[cIdx].name, amount });
+                    debtors[dIdx].balance += amount;
+                    creditors[cIdx].balance -= amount;
+                    if (Math.abs(debtors[dIdx].balance) < 0.1) dIdx++;
+                    if (Math.abs(creditors[cIdx].balance) < 0.1) cIdx++;
+                }
+                return res;
+            });
+
+            return {
+                activeTab, currentDayIndex, itinerary, addPlan, removePlan, openMaps,
+                expenses, newExpense, addExpense, settlements, spots
+            }
+        }
+    }).mount('#app');
+</script>
+
+</body>
+</html>
